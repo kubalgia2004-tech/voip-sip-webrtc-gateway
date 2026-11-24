@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoIP I – SIP – WebRTC gateway | Jakub Galia</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --muted: #64748b;
+            --accent: #0f62fe;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            line-height: 1.65;
+            color: var(--text);
+            background: var(--bg);
+            margin: 0;
+        }
+        header {
+            background: #0f172a;
+            color: #fff;
+            padding: 2.5rem 1.5rem;
+        }
+        header .wrap, main, footer {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        header h1 { margin: 0 0 0.5rem; font-size: 2rem; }
+        header p { margin: 0.25rem 0; color: #cbd5e1; }
+        .badge {
+            display: inline-block;
+            background: var(--accent);
+            color: #fff;
+            padding: 0.2rem 0.65rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin-top: 0.75rem;
+        }
+        nav {
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        nav ul {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0.75rem 1.5rem;
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.2rem;
+        }
+        nav a {
+            text-decoration: none;
+            color: var(--text);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        nav a:hover { color: var(--accent); }
+        main { padding: 2rem 1.5rem; }
+        section {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+        h2 {
+            margin-top: 0;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
+            color: #0f172a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            border: 1px solid var(--border);
+            padding: 0.65rem 0.8rem;
+            text-align: left;
+        }
+        th { background: #f1f5f9; }
+        code {
+            background: #f1f5f9;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .status {
+            color: var(--muted);
+            font-style: italic;
+        }
+        footer {
+            text-align: center;
+            padding: 1.5rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="wrap">
+        <h1>SIP – WebRTC gateway</h1>
+        <p>Semestrální projekt z předmětu VoIP I | FEI, VŠB-TU Ostrava (ZS 2026/2027)</p>
+        <p><strong>Autor:</strong> Jakub Galia (GAL0206)</p>
+        <span class="badge">Varianta: Prohlížeč (Chrome / Firefox) × Kodek (Opus / G.711)</span>
+    </div>
+</header>
+
+<nav>
+    <ul>
+        <li><a href="#uvod">1. Úvod</a></li>
+        <li><a href="#stav">2. Současný stav</a></li>
+        <li><a href="#konfigurace">3. Technologie a varianta</a></li>
+        <li><a href="#dukazy">4. Důkazový balíček</a></li>
+        <li><a href="#nazor">5. Vlastní názor</a></li>
+        <li><a href="#zaver">6. Závěr</a></li>
+        <li><a href="#reference">7. Reference</a></li>
+    </ul>
+</nav>
+
+<main>
+    <section id="uvod">
+        <h2>1. Úvod</h2>
+        <p>Cílem tohoto semestrálního projektu je návrh, konfigurace a praktické ověření brány (gateway) propojující klasickou SIP IP telefonii s webovými klienty využívajícími technologii WebRTC.</p>
+        <p>Projekt se konkrétně zaměřuje na přidělenou testovací matici kombinací <strong>prohlížeče (Google Chrome / Mozilla Firefox)</strong> a <strong>hlasového kodeku (Opus / G.711)</strong> s důrazem na end-to-end sestavení hovoru a analýzu šifrování mediálního toku (DTLS-SRTP vs. RTP).</p>
+    </section>
+
+    <section id="stav">
+        <h2>2. Současný stav řešené problematiky</h2>
+        <p class="status">[Týden 11–12: Doplnění popisu rozdílu mezi klasickým SIP/UDP + RTP a WebRTC architekturou (SIP over WebSocket WSS, ICE/STUN, DTLS-SRTP).]</p>
+    </section>
+
+    <section id="konfigurace">
+        <h2>3. Podrobný popis technologie a řešení varianty</h2>
+        <p>Jako SIP–WebRTC brána bude použita ústředna <strong>Asterisk (PJSIP)</strong> provozovaná na virtuálním serveru Ubuntu. Proti webovému klientovi (JsSIP v Chrome a Firefoxu) bude na straně klasického SIPu komunikovat softphone <strong>MicroSIP</strong>.</p>
+        <h3>Testovací matice kombinací</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Prohlížeč (WebRTC)</th>
+                    <th>Kodek</th>
+                    <th>Stav / Výsledek</th>
+                    <th>Wireshark záznam</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>Google Chrome</td>
+                    <td>Opus</td>
+                    <td class="status">Připraveno k měření (T12)</td>
+                    <td><code>captures/01_chrome_opus.pcapng</code></td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Google Chrome</td>
+                    <td>G.711 (PCMA)</td>
+                    <td class="status">Připraveno k měření (T12)</td>
+                    <td><code>captures/02_chrome_g711.pcapng</code></td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>Mozilla Firefox</td>
+                    <td>Opus</td>
+                    <td class="status">Připraveno k měření (T12)</td>
+                    <td><code>captures/03_firefox_opus.pcapng</code></td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>Mozilla Firefox</td>
+                    <td>G.711 (PCMA)</td>
+                    <td class="status">Připraveno k měření (T12)</td>
+                    <td><code>captures/04_firefox_g711.pcapng</code></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="dukazy">
+        <h2>4. Důkazový balíček</h2>
+        <ul>
+            <li><strong>Git repozitář:</strong> <a href="https://github.com/TVOJE-JMENO/voip-sip-webrtc-gateway" target="_blank">github.com/kubalgia2004-tech/voip-sip-webrtc-gateway</a></li>
+            <li><strong>Konfigurační soubory Asterisku:</strong> složka <code>configs/</code> (přibude v T11)</li>
+            <li><strong>WebRTC klient:</strong> složka <code>client/</code> (přibude v T11)</li>
+            <li><strong>Wireshark captures (DTLS-SRTP & SDP):</strong> složka <code>captures/</code> (přibude v T12)</li>
+            <li><strong>Záložní demo video (2–3 min):</strong> <span class="status">[Odkaz bude doplněn v T13]</span></li>
+        </ul>
+    </section>
+
+    <section id="nazor">
+        <h2>5. Vlastní názor a přínos</h2>
+        <p class="status">[Týden 12–13: Zhodnocení chování Chrome vs. Firefox při vyjednávání SDP a kodeků, výhody a úskalí WebRTC v praxi.]</p>
+    </section>
+
+    <section id="zaver">
+        <h2>6. Závěr</h2>
+        <p class="status">[Týden 13: Shrnutí výsledků měření všech čtyř kombinací a ověření šifrování.]</p>
+    </section>
+
+    <section id="reference">
+        <h2>7. Reference</h2>
+        <ul>
+            <li>IETF RFC 3261 – <em>SIP: Session Initiation Protocol</em></li>
+            <li>IETF RFC 7118 – <em>The WebSocket Protocol as a Transport for the Session Initiation Protocol (SIP)</em></li>
+            <li>IETF RFC 5764 – <em>Datagram Transport Layer Security (DTLS) Extension to Establish Keys for the Secure Real-time Transport Protocol (SRTP)</em></li>
+            <li>IETF RFC 6716 – <em>Definition of the Opus Audio Codec</em></li>
+            <li>ITU-T G.711 – <em>Pulse code modulation (PCM) of voice frequencies</em></li>
+        </ul>
+    </section>
+</main>
+
+<footer>
+    VoIP I – Semestrální projekt | Jakub Galia (GAL0206) | FEI VŠB-TU Ostrava
+</footer>
+
+</body>
+</html>
